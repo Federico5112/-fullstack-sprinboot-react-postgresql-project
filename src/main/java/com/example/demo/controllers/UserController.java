@@ -28,6 +28,11 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/activity/{userId}")
+    public List<Object> getUserActivity(@PathVariable Long userId) {
+        return userService.getUserActivity(userId);
+    }
+
     @PostMapping
     public User createUser(@RequestBody User newUser) {
         return userService.saveOneUser(newUser);

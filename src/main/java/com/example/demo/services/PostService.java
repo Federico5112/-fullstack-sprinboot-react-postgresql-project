@@ -5,8 +5,11 @@ import com.example.demo.entities.User;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.requests.PostCreateRequest;
 import com.example.demo.requests.PostUpdateRequest;
+import com.example.demo.responses.LikeResponse;
 import com.example.demo.responses.PostResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,11 +20,19 @@ public class PostService {
 
     private PostRepository postRepository;
     private UserService userService;
+    private LikeService likeService; // Eklenen servis
 
     public PostService(PostRepository postRepository, UserService userService) {
         this.postRepository = postRepository;
         this.userService = userService;
     }
+
+    @Lazy
+    @Autowired
+    public void setLikeService(@Lazy LikeService likeService) {
+        this.likeService = likeService;
+    }
+
 
     public List<PostResponse> getAllPosts(Optional<Long> userId) {
         List<Post> list;
@@ -31,7 +42,11 @@ public class PostService {
             list = postRepository.findAll();
         }
 
-        return list.stream().map(p -> new PostResponse(p)).collect(Collectors.toList());
+        // Postları dönerken LikeService'den o posta ait beğenileri çekip Response içine yerleştiriyoruz
+        return list.stream().map(p -> {
+            List<LikeResponse> likes = likeService.getAllLikesWithParam(Optional.empty(), Optional.of(p.getId()));
+            return new PostResponse(p, likes);
+        }).collect(Collectors.toList());
     }
 
     public Post getOnePostById(Long postId) {

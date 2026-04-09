@@ -36,9 +36,9 @@ public class CommentService {
             comments = commentRepository.findByUserId(userId.get());
         }else if(postId.isPresent()) {
             comments = commentRepository.findByPostId(postId.get());
-        }else
+        }else {
             comments = commentRepository.findAll();
-
+        }
         return comments.stream().map(comment -> new CommentResponse(comment)).collect(Collectors.toList());
     }
 
@@ -47,18 +47,21 @@ public class CommentService {
     }
 
     public Comment createOneComment(CommentCreateRequest request) {
+        if (request.getUserId() == null || request.getPostId() == null) {
+            return null;
+        }
+
         User user = userService.getOneUserById(request.getUserId());
         Post post = postService.getOnePostById(request.getPostId());
+
         if(user != null && post != null) {
             Comment commentToSave = new Comment();
-            commentToSave.setId(request.getId());
             commentToSave.setPost(post);
             commentToSave.setUser(user);
             commentToSave.setText(request.getText());
-            commentToSave.setCreateDate(new Date());
             return commentRepository.save(commentToSave);
-        }else
-            return null;
+        }
+        return null;
     }
 
     public Comment updateOneCommentById(Long commentId, CommentUpdateRequest request) {
@@ -67,13 +70,11 @@ public class CommentService {
             Comment commentToUpdate = comment.get();
             commentToUpdate.setText(request.getText());
             return commentRepository.save(commentToUpdate);
-        }else
-            return null;
+        }
+        return null;
     }
 
     public void deleteOneCommentById(Long commentId) {
         commentRepository.deleteById(commentId);
     }
-
-
 }

@@ -29,15 +29,14 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 
-    // 32. satırdaki constructor'ı şu hale getir:
     public AuthController(AuthenticationManager authenticationManager, UserService userService,
                           PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
-                          RefreshTokenService refreshTokenService) { // <-- BURAYA EKLEDİK
+                          RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.refreshTokenService = refreshTokenService; // <-- ŞİMDİ HATA GİDECEK
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/login")
@@ -52,10 +51,10 @@ public class AuthController {
         User user = userService.getOneUserByUserName(loginRequest.getUserName());
 
         AuthResponse authResponse = new AuthResponse();
-        authResponse.setAccessToken("Bearer " + jwtToken);
+        // Kusur Düzeltildi: Çift Bearer çarpışmasını engellemek için saf token gönderiyoruz
+        authResponse.setAccessToken(jwtToken);
         authResponse.setUserId(user.getId());
         authResponse.setMessage("Başarıyla giriş yapıldı.");
-
         authResponse.setRefreshToken(refreshTokenService.createRefreshToken(user));
 
         return authResponse;
@@ -74,7 +73,18 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         userService.saveOneUser(user);
 
+        // Kusur Düzeltildi: Kayıt olan kullanıcıyı hemen doğrulayıp ID ve Token atamalarını yapıyoruz
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                registerRequest.getUserName(), registerRequest.getPassword());
+        Authentication auth = authenticationManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        String jwtToken = jwtTokenProvider.generateJwtToken(auth);
+
         authResponse.setMessage("User successfully registered.");
+        authResponse.setAccessToken(jwtToken);
+        authResponse.setRefreshToken(refreshTokenService.createRefreshToken(user));
+        authResponse.setUserId(user.getId()); // React'in açlıkla beklediği ID değeri
+
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 }
