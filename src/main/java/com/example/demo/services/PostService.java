@@ -42,7 +42,6 @@ public class PostService {
             list = postRepository.findAll();
         }
 
-        // Postları dönerken LikeService'den o posta ait beğenileri çekip Response içine yerleştiriyoruz
         return list.stream().map(p -> {
             List<LikeResponse> likes = likeService.getAllLikesWithParam(Optional.empty(), Optional.of(p.getId()));
             return new PostResponse(p, likes);

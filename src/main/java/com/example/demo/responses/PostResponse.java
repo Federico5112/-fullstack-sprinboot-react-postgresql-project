@@ -11,9 +11,7 @@ public class PostResponse {
     String userName;
     String title;
     String text;
-    List<LikeResponse> postLikes; // Beğenileri taşıyacak yeni alan
-
-    // Constructor'ı bu listeyi de alacak şekilde güncelliyoruz
+    List<LikeResponse> postLikes;
     public PostResponse(Post entity, List<LikeResponse> likes) {
         this.id = entity.getId();
         this.userId = entity.getUser().getId();

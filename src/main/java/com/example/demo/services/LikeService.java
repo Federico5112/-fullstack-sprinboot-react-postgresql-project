@@ -17,12 +17,12 @@ import com.example.demo.responses.LikeResponse;
 @Service
 public class LikeService {
 
-    // Clean Code: Değişmez (Immutable) alanlar için 'final' eklendi
+
     private final LikeRepository likeRepository;
     private final UserService userService;
     private final PostService postService;
 
-    // Circular Dependency'yi her iki taraftan da kırmak için @Lazy eklendi
+
     public LikeService(LikeRepository likeRepository, UserService userService,
                        @Lazy PostService postService) {
         this.likeRepository = likeRepository;
@@ -41,11 +41,11 @@ public class LikeService {
         } else {
             list = likeRepository.findAll();
         }
-        // Clean Code: Lambda yerine Method Reference kullanıldı
+
         return list.stream().map(LikeResponse::new).collect(Collectors.toList());
     }
 
-    // Clean Code: Parametre isimlendirmesi düzeltildi (LikeId -> likeId)
+
     public Like getOneLikeById(Long likeId) {
         return likeRepository.findById(likeId).orElse(null);
     }
@@ -56,7 +56,7 @@ public class LikeService {
 
         if(user != null && post != null) {
             Like likeToSave = new Like();
-            // MANTIK HATASI SİLİNDİ: likeToSave.setId(request.getId());
+
             likeToSave.setPost(post);
             likeToSave.setUser(user);
             return likeRepository.save(likeToSave);

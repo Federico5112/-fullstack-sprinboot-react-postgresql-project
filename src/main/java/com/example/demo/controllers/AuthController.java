@@ -51,7 +51,6 @@ public class AuthController {
         User user = userService.getOneUserByUserName(loginRequest.getUserName());
 
         AuthResponse authResponse = new AuthResponse();
-        // Kusur Düzeltildi: Çift Bearer çarpışmasını engellemek için saf token gönderiyoruz
         authResponse.setAccessToken(jwtToken);
         authResponse.setUserId(user.getId());
         authResponse.setMessage("Başarıyla giriş yapıldı.");
@@ -73,7 +72,6 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         userService.saveOneUser(user);
 
-        // Kusur Düzeltildi: Kayıt olan kullanıcıyı hemen doğrulayıp ID ve Token atamalarını yapıyoruz
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 registerRequest.getUserName(), registerRequest.getPassword());
         Authentication auth = authenticationManager.authenticate(authToken);
@@ -83,8 +81,7 @@ public class AuthController {
         authResponse.setMessage("User successfully registered.");
         authResponse.setAccessToken(jwtToken);
         authResponse.setRefreshToken(refreshTokenService.createRefreshToken(user));
-        authResponse.setUserId(user.getId()); // React'in açlıkla beklediği ID değeri
-
+        authResponse.setUserId(user.getId());
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 }

@@ -78,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/error").permitAll() // EKLENEN KRİTİK SATIR
+                        .requestMatchers("/error").permitAll() 
                         .anyRequest().authenticated()
                 );
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
