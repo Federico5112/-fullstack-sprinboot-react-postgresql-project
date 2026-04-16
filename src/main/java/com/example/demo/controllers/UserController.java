@@ -48,6 +48,11 @@ public class UserController {
         return userService.updateOneUser(userId, newUser);
     }
 
+    @PutMapping("/{userId}/avatar")
+    public User updateAvatar(@PathVariable Long userId, @RequestBody User avatarData) {
+        return userService.updateUserAvatar(userId, avatarData.getAvatar());
+    }
+
     @DeleteMapping("/{userId}")
     public void deleteOneUser(@PathVariable Long userId) {
         userService.deleteById(userId);
